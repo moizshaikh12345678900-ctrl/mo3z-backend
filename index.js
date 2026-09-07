@@ -4,7 +4,12 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-const PORT = 5000;
+
+/* =========================================================
+   PORT
+========================================================= */
+
+const PORT = process.env.PORT || 5000;
 
 /* =========================================================
    MIDDLEWARE
@@ -14,14 +19,15 @@ app.use(cors());
 app.use(express.json());
 
 /* =========================================================
-   MYSQL CONNECTION
+   MYSQL CONNECTION - RAILWAY
 ========================================================= */
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "mo3z_website",
+  host: process.env.MYSQLHOST,
+  port: Number(process.env.MYSQLPORT),
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
 });
 
 db.connect((err) => {
@@ -139,7 +145,7 @@ app.get("/api/youtube", async (req, res) => {
     if (!API_KEY) {
       return res.status(500).json({
         success: false,
-        message: "YOUTUBE_API_KEY is missing in .env",
+        message: "YOUTUBE_API_KEY is missing in Railway Variables",
       });
     }
 
@@ -256,81 +262,51 @@ app.get("/api/youtube", async (req, res) => {
                   video.contentDetails || {};
 
                 return {
-                  /* =========================================
-                     VIDEO ID
-                  ========================================= */
-
+                  /* VIDEO ID */
                   id: video.id,
 
-                  /* =========================================
-                     TITLE
-                  ========================================= */
-
+                  /* TITLE */
                   title:
                     videoSnippet.title ||
                     "Untitled Video",
 
-                  /* =========================================
-                     DESCRIPTION
-                  ========================================= */
-
+                  /* DESCRIPTION */
                   description:
                     videoSnippet.description ||
                     "",
 
-                  /* =========================================
-                     THUMBNAIL
-                  ========================================= */
-
+                  /* THUMBNAIL */
                   thumbnail:
                     videoSnippet.thumbnails?.high?.url ||
                     videoSnippet.thumbnails?.medium?.url ||
                     videoSnippet.thumbnails?.default?.url ||
                     "",
 
-                  /* =========================================
-                     PUBLISHED DATE
-                  ========================================= */
-
+                  /* PUBLISHED DATE */
                   publishedAt:
                     videoSnippet.publishedAt ||
                     null,
 
-                  /* =========================================
-                     REAL YOUTUBE VIEWS
-                  ========================================= */
-
+                  /* REAL YOUTUBE VIEWS */
                   views:
                     videoStatistics.viewCount ??
                     "0",
 
-                  /* =========================================
-                     REAL YOUTUBE COMMENTS
-                  ========================================= */
-
+                  /* REAL YOUTUBE COMMENTS */
                   comments:
                     videoStatistics.commentCount ??
                     "0",
 
-                  /* =========================================
-                     DURATION
-                  ========================================= */
-
+                  /* DURATION */
                   duration:
                     videoContent.duration ||
                     "",
 
-                  /* =========================================
-                     VIDEO URL
-                  ========================================= */
-
+                  /* VIDEO URL */
                   url:
                     `https://www.youtube.com/watch?v=${video.id}`,
 
-                  /* =========================================
-                     SHORTS URL
-                  ========================================= */
-
+                  /* SHORTS URL */
                   shortsUrl:
                     `https://www.youtube.com/shorts/${video.id}`,
                 };
@@ -347,25 +323,16 @@ app.get("/api/youtube", async (req, res) => {
     res.json({
       success: true,
 
-      /* ===================================================
-         CHANNEL NAME
-      =================================================== */
-
+      /* CHANNEL NAME */
       name:
         snippet.title ||
         "MO3Z",
 
-      /* ===================================================
-         CHANNEL USERNAME
-      =================================================== */
-
+      /* CHANNEL USERNAME */
       username:
         "@mo3z_roblox",
 
-      /* ===================================================
-         CHANNEL JOIN DATE
-      =================================================== */
-
+      /* CHANNEL JOIN DATE */
       joined:
         snippet.publishedAt
           ? new Date(
@@ -380,50 +347,32 @@ app.get("/api/youtube", async (req, res) => {
             )
           : "25 May 2026",
 
-      /* ===================================================
-         CHANNEL IMAGE
-      =================================================== */
-
+      /* CHANNEL IMAGE */
       thumbnail:
         snippet.thumbnails?.high?.url ||
         snippet.thumbnails?.medium?.url ||
         snippet.thumbnails?.default?.url ||
         "",
 
-      /* ===================================================
-         SUBSCRIBERS
-      =================================================== */
-
+      /* SUBSCRIBERS */
       subscribers:
         statistics.subscriberCount ??
         "0",
 
-      /* ===================================================
-         TOTAL CHANNEL VIEWS
-      =================================================== */
-
+      /* TOTAL CHANNEL VIEWS */
       totalViews:
         statistics.viewCount ??
         "0",
 
-      /* ===================================================
-         TOTAL VIDEOS
-      =================================================== */
-
+      /* TOTAL VIDEOS */
       videos:
         statistics.videoCount ??
         "0",
 
-      /* ===================================================
-         LATEST VIDEOS
-      =================================================== */
-
+      /* LATEST VIDEOS */
       latestVideos,
 
-      /* ===================================================
-         LAST UPDATE
-      =================================================== */
-
+      /* LAST UPDATE */
       updatedAt:
         new Date().toISOString(),
     });
@@ -449,13 +398,13 @@ app.listen(PORT, () => {
   console.log("🔥 MO3Z SERVER STARTED");
   console.log("==================================");
   console.log(
-    `🚀 http://localhost:${PORT}`
+    `🚀 Server running on port ${PORT}`
   );
   console.log(
-    `📊 http://localhost:${PORT}/api/youtube`
+    `📊 /api/youtube`
   );
   console.log(
-    `👁️ http://localhost:${PORT}/api/visitors`
+    `👁️ /api/visitors`
   );
   console.log("==================================");
   console.log("");
